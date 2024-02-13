@@ -11,10 +11,19 @@ namespace Depra.Pause
 		private readonly IPauseInput _input;
 		private readonly List<IPauseListener> _listeners = new();
 
-		public PauseService(IPauseInput input, params IPauseListener[] listeners)
-		{
+		public PauseService(IPauseInput input, params IPauseListener[] listeners) : this(input) =>
 			Array.ForEach(listeners, Add);
 
+		public PauseService(IPauseInput input, IEnumerable<IPauseListener> listeners) : this(input)
+		{
+			foreach (var listener in listeners)
+			{
+				Add(listener);
+			}
+		}
+
+		private PauseService(IPauseInput input)
+		{
 			_input = input;
 			_input.Pause += Pause;
 			_input.Resume += Resume;
