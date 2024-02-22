@@ -7,6 +7,22 @@ namespace Depra.Pause
 {
 	public static class PauseServiceExtensions
 	{
+		public static void AddRange(this IPauseService self, IEnumerable<IPauseInput> inputs)
+		{
+			foreach (var listener in inputs)
+			{
+				self.Add(listener);
+			}
+		}
+
+		public static void RemoveRange(this IPauseService self, IEnumerable<IPauseInput> inputs)
+		{
+			foreach (var listener in inputs)
+			{
+				self.Remove(listener);
+			}
+		}
+
 		public static void AddRange(this IPauseService self, IEnumerable<IPauseListener> listeners)
 		{
 			foreach (var listener in listeners)
