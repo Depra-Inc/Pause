@@ -11,7 +11,7 @@ public sealed class PauseServiceTests
 		// Arrange:
 		var input = Substitute.For<IPauseInput>();
 		var listener = Substitute.For<IPauseListener>();
-		_ = new PauseService(input, listener);
+		_ = new PauseService([input], [listener]);
 
 		// Act:
 		input.Pause += Raise.Event<Action>();
@@ -26,13 +26,13 @@ public sealed class PauseServiceTests
 		// Arrange:
 		const int LISTENER_COUNT = 3;
 		var input = Substitute.For<IPauseInput>();
-		var listeners = new IPauseListener[LISTENER_COUNT];
+		var listeners = new List<IPauseListener>(LISTENER_COUNT);
 		for (var index = 0; index < LISTENER_COUNT; index++)
 		{
-			listeners[index] = Substitute.For<IPauseListener>();
+			listeners.Add(Substitute.For<IPauseListener>());
 		}
 
-		_ = new PauseService(input, listeners);
+		_ = new PauseService([input], listeners);
 
 		// Act:
 		input.Pause += Raise.Event<Action>();
@@ -50,8 +50,8 @@ public sealed class PauseServiceTests
 		// Arrange:
 		var input = Substitute.For<IPauseInput>();
 		var listener = Substitute.For<IPauseListener>();
-		var service = new PauseService(input, listener);
-		service.IsPaused = true;
+		var service = new PauseService([input], [listener]);
+		service.Paused = true;
 
 		// Act:
 		input.Resume += Raise.Event<Action>();
@@ -66,14 +66,14 @@ public sealed class PauseServiceTests
 		// Arrange:
 		const int LISTENER_COUNT = 3;
 		var input = Substitute.For<IPauseInput>();
-		var listeners = new IPauseListener[LISTENER_COUNT];
+		var listeners = new List<IPauseListener>(LISTENER_COUNT);
 		for (var index = 0; index < LISTENER_COUNT; index++)
 		{
-			listeners[index] = Substitute.For<IPauseListener>();
+			listeners.Add(Substitute.For<IPauseListener>());
 		}
 
-		var service = new PauseService(input, listeners);
-		service.IsPaused = true;
+		var service = new PauseService([input], listeners);
+		service.Paused = true;
 
 		// Act:
 		input.Resume += Raise.Event<Action>();

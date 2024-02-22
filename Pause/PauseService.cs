@@ -8,34 +8,39 @@ namespace Depra.Pause
 {
 	public sealed class PauseService : IPauseService, IDisposable
 	{
-		private readonly IPauseInput _input;
+		private readonly List<IPauseInput> _inputs = new();
 		private readonly List<IPauseListener> _listeners = new();
 
-		public PauseService(IPauseInput input, params IPauseListener[] listeners) : this(input) =>
-			Array.ForEach(listeners, Add);
-
-		public PauseService(IPauseInput input, IEnumerable<IPauseListener> listeners) : this(input)
+		public PauseService(List<IPauseInput> inputs, List<IPauseListener> listeners)
 		{
-			foreach (var listener in listeners)
-			{
-				Add(listener);
-			}
-		}
-
-		private PauseService(IPauseInput input)
-		{
-			_input = input;
-			_input.Pause += Pause;
-			_input.Resume += Resume;
+			inputs.ForEach(Add);
+			listeners.ForEach(Add);
 		}
 
 		public void Dispose()
 		{
-			_input.Pause -= Pause;
-			_input.Resume -= Resume;
+			foreach (var input in _inputs)
+			{
+				input.Pause -= Pause;
+				input.Resume -= Resume;
+			}
+
+			_inputs.Clear();
 		}
 
-		public bool IsPaused { get; internal set; }
+		public bool Paused { get; internal set; }
+
+		public void Add(IPauseInput input)
+		{
+			if (_inputs.Contains(input))
+			{
+				return;
+			}
+
+			_inputs.Add(input);
+			input.Pause += Pause;
+			input.Resume += Resume;
+		}
 
 		public void Add(IPauseListener listener)
 		{
@@ -47,30 +52,42 @@ namespace Depra.Pause
 
 		private void Pause()
 		{
-			if (IsPaused)
+			if (Paused)
 			{
 				return;
 			}
 
-			IsPaused = true;
-			foreach (var control in _listeners)
+			Paused = true;
+			foreach (var listener in _listeners)
 			{
-				control.Pause();
+				listener.Pause();
 			}
 		}
 
 		private void Resume()
 		{
-			if (IsPaused == false)
+			if (Paused == false)
 			{
 				return;
 			}
 
-			IsPaused = false;
+			Paused = false;
 			foreach (var listener in _listeners)
 			{
 				listener.Resume();
 			}
+		}
+
+		void IPauseService.Remove(IPauseInput input)
+		{
+			if (_inputs.Contains(input) == false)
+			{
+				return;
+			}
+
+			_inputs.Add(input);
+			input.Pause -= Pause;
+			input.Resume -= Resume;
 		}
 
 		void IPauseService.Remove(IPauseListener listener)
