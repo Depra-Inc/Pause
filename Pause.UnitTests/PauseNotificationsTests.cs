@@ -3,21 +3,22 @@
 
 namespace Depra.Pause.UnitTests;
 
-public sealed class PauseServiceTests
+public sealed class PauseNotificationsTests
 {
 	[Fact]
 	public void PauseInput_ShouldBePassedToListener()
 	{
 		// Arrange:
-		var input = Substitute.For<IPauseInput>();
+		var input = Substitute.For<IPauseInputSource>();
 		var listener = Substitute.For<IPauseListener>();
-		_ = new PauseService([input], [listener]);
+		var state = new PauseState();
+		var notifications = new PauseNotifications(state, [listener]);
 
 		// Act:
-		input.Pause += Raise.Event<Action>();
+		input.PauseTriggered += Raise.Event<Action>();
 
 		// Assert:
-		listener.Received(1).Pause();
+		listener.Received(1).OnPause();
 	}
 
 	[Fact]
@@ -25,22 +26,23 @@ public sealed class PauseServiceTests
 	{
 		// Arrange:
 		const int LISTENER_COUNT = 3;
-		var input = Substitute.For<IPauseInput>();
+		var input = Substitute.For<IPauseInputSource>();
 		var listeners = new List<IPauseListener>(LISTENER_COUNT);
 		for (var index = 0; index < LISTENER_COUNT; index++)
 		{
 			listeners.Add(Substitute.For<IPauseListener>());
 		}
 
-		_ = new PauseService([input], listeners);
+		var state = new PauseState();
+		var notifications = new PauseNotifications(state, listeners);
 
 		// Act:
-		input.Pause += Raise.Event<Action>();
+		input.PauseTriggered += Raise.Event<Action>();
 
 		// Assert:
 		foreach (var listener in listeners)
 		{
-			listener.Received(1).Pause();
+			listener.Received(1).OnPause();
 		}
 	}
 
@@ -48,16 +50,17 @@ public sealed class PauseServiceTests
 	public void ResumeInput_ShouldBePassedToListener()
 	{
 		// Arrange:
-		var input = Substitute.For<IPauseInput>();
+		var input = Substitute.For<IPauseInputSource>();
 		var listener = Substitute.For<IPauseListener>();
-		var service = new PauseService([input], [listener]);
-		service.Paused = true;
+		var state = new PauseState();
+		var notifications = new PauseNotifications(state, [listener]);
+		state.IsPaused = true;
 
 		// Act:
-		input.Resume += Raise.Event<Action>();
+		input.ResumeTriggered += Raise.Event<Action>();
 
 		// Assert:
-		listener.Received(1).Resume();
+		listener.Received(1).OnResume();
 	}
 
 	[Fact]
@@ -65,23 +68,24 @@ public sealed class PauseServiceTests
 	{
 		// Arrange:
 		const int LISTENER_COUNT = 3;
-		var input = Substitute.For<IPauseInput>();
+		var input = Substitute.For<IPauseInputSource>();
 		var listeners = new List<IPauseListener>(LISTENER_COUNT);
 		for (var index = 0; index < LISTENER_COUNT; index++)
 		{
 			listeners.Add(Substitute.For<IPauseListener>());
 		}
 
-		var service = new PauseService([input], listeners);
-		service.Paused = true;
+		var state = new PauseState();
+		var notifications = new PauseNotifications(state, listeners);
+		state.IsPaused = true;
 
 		// Act:
-		input.Resume += Raise.Event<Action>();
+		input.ResumeTriggered += Raise.Event<Action>();
 
 		// Assert:
 		foreach (var listener in listeners)
 		{
-			listener.Received(1).Resume();
+			listener.Received(1).OnResume();
 		}
 	}
 }

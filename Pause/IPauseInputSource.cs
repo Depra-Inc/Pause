@@ -1,11 +1,13 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
+
 namespace Depra.Pause
 {
-	public interface IPauseListener
+	public interface IPauseInputSource
 	{
-		void OnPause();
-		void OnResume();
+		event Action PauseTriggered;
+		event Action ResumeTriggered;
 	}
 }
