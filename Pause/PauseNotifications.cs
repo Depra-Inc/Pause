@@ -11,11 +11,12 @@ namespace Depra.Pause
 		private readonly IPauseState _state;
 		private readonly List<IPauseListener> _listeners = new();
 
-		public PauseNotifications(IPauseState state)
+		public PauseNotifications(IPauseState state, IEnumerable<IPauseListener> listeners)
 		{
 			_state = state;
 			_state.Paused += OnPause;
 			_state.Resumed += OnResume;
+			AddRange(listeners);
 		}
 
 		public void Dispose()
@@ -27,14 +28,6 @@ namespace Depra.Pause
 			}
 
 			Reset();
-		}
-
-		public PauseNotifications(IPauseState state, IEnumerable<IPauseListener> listeners) : this(state)
-		{
-			foreach (var listener in listeners)
-			{
-				Add(listener);
-			}
 		}
 
 		public void Add(IPauseListener listener)

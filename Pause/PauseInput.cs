@@ -10,14 +10,10 @@ namespace Depra.Pause
 		private readonly IPauseState _state;
 		private readonly List<IPauseInputSource> _inputs = new();
 
-		public PauseInput(IPauseState state) => _state = state;
-
-		public PauseInput(IPauseState state, IEnumerable<IPauseInputSource> inputs) : this(state)
+		public PauseInput(IPauseState state, IEnumerable<IPauseInputSource> inputs)
 		{
-			foreach (var input in inputs)
-			{
-				Add(input);
-			}
+			_state = state;
+			AddRange(inputs);
 		}
 
 		public void Dispose()
